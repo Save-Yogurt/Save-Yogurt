@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <style>
+        body {
+            background-color: #a2e9ff;
+        }
+
+        .logo {
+            width: 75px;
+            height: 75px;
+        }
+
+        input {
+            padding: 5px;
+            border-radius: 5%;
+            border-width: 1px;
+            margin: 5px;
+            outline: none;
+        }
+    </style>
+    <div animation-name><img class="logo" src="Save_Yogurt_Logo_Vetorizada_Ofc.png" style="width: 75px;
+                height: 75px;"></div><br>
+    <h1>Calculadora financeira</h1>
+
+    <br><br>
+
+    <label>Quantas toneladas são transportadas por ano?</label><br>
+    <input type="number" id="ipt_quantidade_cargas" placeholder="Ex. 100"><br><br>
+
+    <label>Porcentagens de perdas por falha na cadeia fria? (Sem "%")</label><br>
+    <input type="number" id="ipt_taxa_perda" placeholder="Ex. 15"><br><br>
+
+    <label>Qual o valor médio da tonelada de iogurte (R$)?</label><br>
+    <input type="number" id="ipt_valor_medio" placeholder="Ex. 1000"><br><br>
+
+    <button onclick="calcular()">Calcular Retorno</button>
+
+    <br><br>
+
+    <div id="output"></div>
+
+
+
+
+    <script>
+        function calcular() {
+            // Recebe os valores do input em variaveis
+            let volume = Number(ipt_quantidade_cargas.value);
+            let taxaPerda = Number(ipt_taxa_perda.value) / 100;
+            let valorCarga = Number(ipt_valor_medio.value);
+
+            // Calcula as variaveis de acordo com os inputs
+            let cargasPerdidas = volume * taxaPerda;
+
+            let cargasRecuperadasComSensor = cargasPerdidas * 0.8;
+
+            let perdaFinanceira = cargasPerdidas * valorCarga;
+
+            let valorSemSensor = volume * valorCarga * taxaPerda;
+            let valorComSensor = valorSemSensor * 0.2;
+            let economia = valorSemSensor - valorComSensor;
+
+            // É mostrado ao usuário os resultados de acordo com os valores calculados
+            output.innerHTML = `
+                <h3>Resultado da Simulação</h3>
+
+                Perdas totais financeiras: R$ ${perdaFinanceira.toFixed(2)} (R$ ${(perdaFinanceira / 1000000).toFixed(2)} Milhões)  <br>
+                Toneladas perdidas sem o sensor: ${(cargasPerdidas).toFixed(2)} Toneladas <br>
+                Toneladas estimadas preservadas após o sensor: ${cargasRecuperadasComSensor.toFixed(2)} Toneladas <br>
+                Economia mínima estimada com o sensor: R$ ${economia.toFixed(2)} (R$ ${(economia / 1000000).toFixed(2)} Milhões) <br>
+            `;
+
+
+        }
+
+    </script>
+
+</body>
+
+
+</html>
