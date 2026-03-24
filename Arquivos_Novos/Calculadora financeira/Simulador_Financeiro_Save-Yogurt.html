@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora Financeira</title>
+    <style>
+        body {
+            background-color: whitesmoke;
+            font-family: Arial, sans-serif;
+
+            /* Centralização */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            /* Deixa os elementos centralizados dentro da div */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1{
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        /* Labels */
+        label {
+            font-weight: bold;
+        }
+
+        /* Inputs */
+        input {
+            width: 400px;
+            padding: 10px;
+            border-radius: 50px;
+            border: 1px solid #171616;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            font-size: 15px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        /* Efeito ao focar do input */
+        input:focus {
+            border: 1px solid #0770ea;
+        }
+        
+        /* Remove botões de número no Chrome/Edge/Opera */
+        input::-webkit-inner-spin-button,
+        input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Remove botões no Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Botão */
+        button {
+            padding: 12px 20px;
+            background-color: whitesmoke;
+            color: #0770ea;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            transition: 0.2s;
+            width: 50%;
+            border: 3px solid #0770ea;
+            cursor: pointer;
+        }
+
+        /* Efeito ao focar do botão */
+        button:hover {
+            background-color: #004390;
+            border: 3px solid #004390;
+            color: white;
+        }
+
+        #output {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .title-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 100px; 
+        }
+
+        .info-icon {
+            background-color: #0770ea;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: absolute;
+            margin-left: 600px;
+        }
+
+        .info-icon .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 500px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: left;
+            top: 30px;
+
+            position: absolute;
+
+            transition: opacity 0.2s ease;
+        }
+
+        .info-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1; 
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="container">
+
+        <div class="title-info">
+            <h1>Simulador Financeiro</h1>
+
+            <div class="info-icon">
+                i
+                <div class="tooltip">
+                    Base real dos cenários utilizados:<br><br>
+
+                    30% (mínimo): relatórios de mercado mostram redução de até 30% nas perdas após adoção de sensores em operações logísticas.<br><br>
+
+                    55% (realista): média ponderada entre:<br>
+                      - estudos científicos que mostram perdas evitáveis de 10–40%<br>
+                      - caso real de sensor IoT reduzindo perdas em ~70%<br>
+                      - resulta em um cenário realista de ~55%.<br><br>
+
+                    80% (otimista): estudos e casos avançados mostram reduções entre 70% e 90% quando há automação total e respostas rápidas.<br>
+                      - 80% é o valor plausível para um cenário ideal.
+                </div>
+            </div>
+        </div>
+
+        <label>Quantas toneladas são transportadas por ano?</label><br>
+        <input type="number" id="ipt_quantidade_cargas" placeholder="Ex. 100"><br><br>
+
+        <label>Porcentagem de perdas na cadeia fria (%)</label><br>
+        <input type="number" id="ipt_taxa_perda" placeholder="Ex. 15"><br><br>
+
+        <label>Valor médio da tonelada de iogurte (R$)</label><br>
+        <input type="number" id="ipt_valor_medio" placeholder="Ex. 1000"><br><br>
+
+        <button onclick="calcular()">Calcular Retorno</button>
+
+        <div id="output"></div>
+
+    </div>
+
+<script>
+function calcular() {
+
+    // Inputs do usuário
+    let volume = Number(ipt_quantidade_cargas.value);
+    let taxaPerda = Number(ipt_taxa_perda.value) / 100;
+    let valorCarga = Number(ipt_valor_medio.value);
+
+    // Cálculos base
+    let cargasPerdidas = volume * taxaPerda;
+    let perdaFinanceira = cargasPerdidas * valorCarga;
+
+    // Cenários reais de mercado
+    let minimo = 0.30;    // 30%
+    let realista = 0.55;  // 55%
+    let otimista = 0.80;  // 80%
+
+    // Economias por cenário
+    let economiaMinima = perdaFinanceira * minimo;
+    let economiaRealista = perdaFinanceira * realista;
+    let economiaOtimista = perdaFinanceira * otimista;
+
+    output.innerHTML = `
+        <h3>Resultados Baseados em Estudos Reais</h3>
+
+        <strong>Perdas totais (atuais):</strong><br>
+        R$ ${perdaFinanceira.toFixed(2)}
+        (R$ ${(perdaFinanceira / 1000000).toFixed(2)} milhões)<br><br>
+
+        <strong>Cenário Mínimo (30% de redução):</strong><br>
+        Economia estimada: R$ ${economiaMinima.toFixed(2)}
+        (R$ ${(economiaMinima / 1000000).toFixed(2)} milhões)<br><br>
+
+        <strong>Cenário Realista (55% de redução):</strong><br>
+        Economia estimada: R$ ${economiaRealista.toFixed(2)}
+        (R$ ${(economiaRealista / 1000000).toFixed(2)} milhões)<br><br>
+
+        <strong>Cenário Otimista (80% de redução):</strong><br>
+        Economia estimada: R$ ${economiaOtimista.toFixed(2)}
+        (R$ ${(economiaOtimista / 1000000).toFixed(2)} milhões)<br><br>
+    `;
+}
+// Base real dos percentuais utilizados:
+
+// 30% (mínimo): relatórios de mercado mostram redução de até 30% nas perdas
+// após adoção de sensores em operações logísticas.
+
+// 55% (realista): média ponderada entre:
+//   - estudos científicos que mostram perdas evitáveis de 10–40%
+//   - caso real de sensor IoT reduzindo perdas em ~70%
+//   - resulta em um cenário realista de ~55%.
+
+// 80% (otimista): estudos e casos avançados mostram reduções entre 70% e 90%
+// quando há automação total e respostas rápidas.
+//   - 80% é o valor plausível para um cenário ideal.
+
+// Fontes:
+
+// Fonte que indica que 1/3 dos alimentos produzidos são perdidos ou desperdiçados 
+// globalmente, e que uma parte significativa disso ocorre durante armazenamento/transporte
+// (para justificar o uso dos sensores):https://www.mdpi.com/2304-8158/12/15/2881
+
+// Fonte (~30%):https://www.globalgrowthinsights.com/market-reports/cold-chain-sensors-market-114145
+
+// Fonte (~55% e ~80%):https://www.mdpi.com/2076-3417/15/13/7602
+</script>
+
+</body>
+</html>
