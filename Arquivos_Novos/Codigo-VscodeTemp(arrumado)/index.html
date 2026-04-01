@@ -14,7 +14,7 @@
             <canvas id="sensorAnalogico"></canvas>
         </div> -->
         <div style="width: 50%;">
-            <canvas id="sensorDigital"></canvas>
+            <canvas id="sensorTemperatura"></canvas>
         </div>
     </div>
 
@@ -44,11 +44,11 @@
         //     }
         // });
 
-        var sensorDigital = new Chart(document.getElementById('sensorDigital').getContext('2d'), {
+        var sensorTemperatura = new Chart(document.getElementById('sensorTemperatura').getContext('2d'), {
             type: 'line',
             data: {
                 datasets: [{
-                    label: 'Digital',
+                    label: 'Temperatura',
                     borderColor: '#63B1BC',
                     backgroundColor: '#0762C8'
                 }]
@@ -103,7 +103,7 @@
 
         setInterval(() => {
             // obterDados(sensorAnalogico, 'analogico');
-            obterDados(sensorDigital, 'digital');
+            obterDados(sensorTemperatura, 'digital');
         }, 1000);
 
     </script>
