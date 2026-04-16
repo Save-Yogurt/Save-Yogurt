@@ -49,11 +49,7 @@ CREATE TABLE lote(
     dt_fabricacao DATE NOT NULL,
     dt_validade DATE NOT NULL,
     qtd_caixas INT NOT NULL,
-    codigo_identificador VARCHAR(45) NOT NULL UNIQUE,
-    fk_empresa INT NOT NULL,
-    CONSTRAINT fk_lote_empresa
-        FOREIGN KEY (fk_empresa)
-        REFERENCES empresa(id_empresa)
+    codigo_identificador VARCHAR(45) NOT NULL UNIQUE
 );
 
 CREATE TABLE caixa(
@@ -77,12 +73,13 @@ CREATE TABLE caixa(
 
 -- 1 = acima ou abaixo da temperatura ideal | 0 = dentro da temperatura ideal
 CREATE TABLE registro(
-    id_registro INT PRIMARY KEY AUTO_INCREMENT,
+    id_registro INT AUTO_INCREMENT,
     dt_registro DATETIME NOT NULL,
     temperatura DECIMAL(4,2) NOT NULL,
     alerta TINYINT NOT NULL,
     situacao VARCHAR(45) NOT NULL,
     fk_sensor INT NOT NULL,
+    PRIMARY KEY (id_registro, fk_sensor),
     CONSTRAINT ch_alerta
         CHECK(alerta IN (0,1)),
     CONSTRAINT ch_situacao
@@ -120,14 +117,14 @@ VALUES
 ('SEN006', 'CoolTrack Z2', 'Inativo', '2026-04-10', '2026-04-19', 3);
 
 INSERT INTO lote
-(dt_fabricacao, dt_validade, qtd_caixas, codigo_identificador, fk_empresa)
+(dt_fabricacao, dt_validade, qtd_caixas, codigo_identificador)
 VALUES
-('2026-04-01', '2026-05-01', 120, 'LOTEDAN001', 1),
-('2026-04-05', '2026-05-05', 90, 'LOTEDAN002', 1),
-('2026-04-02', '2026-05-02', 150, 'LOTEYOP001', 2),
-('2026-04-06', '2026-05-06', 110, 'LOTEYOP002', 2),
-('2026-04-03', '2026-05-03', 130, 'LOTEDTT001', 3),
-('2026-04-07', '2026-05-07', 100, 'LOTEDTT002', 3);
+('2026-04-01', '2026-05-01', 120, 'LOTEDAN001'),
+('2026-04-05', '2026-05-05', 90, 'LOTEDAN002'),
+('2026-04-02', '2026-05-02', 150, 'LOTEYOP001'),
+('2026-04-06', '2026-05-06', 110, 'LOTEYOP002'),
+('2026-04-03', '2026-05-03', 130, 'LOTEDTT001'),
+('2026-04-07', '2026-05-07', 100, 'LOTEDTT002');
 
 INSERT INTO caixa
 (codigo_caixa, status_caixa, dt_cadastro, temp_min, temp_max, fk_sensor, fk_lote)
@@ -164,19 +161,17 @@ SELECT * FROM registro;
 SELECT *
 	FROM 
 		empresa e
-JOIN usuario u
-    ON u.fk_empresa = e.id_empresa
-JOIN sensor s
-    ON s.fk_empresa = e.id_empresa
-JOIN lote l
-    ON l.fk_empresa = e.id_empresa
-JOIN caixa c
-    ON c.fk_lote = l.id_lote
-   AND c.fk_sensor = s.id_sensor
-JOIN registro r
-    ON r.fk_sensor = s.id_sensor;
-
-
+JOIN usuario AS u
+	ON u.fk_empresa = e.id_empresa
+JOIN sensor AS s
+	ON s.fk_empresa = e.id_empresa
+JOIN caixa AS c
+	ON c.fk_sensor = s.id_sensor
+JOIN lote AS l
+	ON c.fk_lote = l.id_lote
+JOIN registro AS r
+	ON r.fk_sensor = s.id_sensor;
+    
 -- Histórico de temperatura por caixa
 SELECT
     e.razao_social AS empresa,
@@ -198,11 +193,11 @@ JOIN caixa c
 JOIN lote l
     ON c.fk_lote = l.id_lote
 JOIN empresa e
-    ON l.fk_empresa = e.id_empresa
+    ON s.fk_empresa = e.id_empresa
 ORDER BY r.dt_registro;
 
 
--- Analise de caixas com problemas de temperatura
+-- Analise de caixas com presença de alerta
 SELECT
     e.razao_social AS Empresa,
     c.codigo_caixa AS Caixa,
@@ -222,7 +217,7 @@ JOIN caixa c
 JOIN lote l
     ON c.fk_lote = l.id_lote
 JOIN empresa e
-    ON l.fk_empresa = e.id_empresa
+    ON s.fk_empresa = e.id_empresa
 WHERE r.alerta = 1
 ORDER BY r.dt_registro DESC;
 
@@ -267,10 +262,10 @@ SELECT
 FROM caixa c
 JOIN lote l
     ON c.fk_lote = l.id_lote
-JOIN empresa e
-    ON l.fk_empresa = e.id_empresa
 JOIN sensor s
     ON c.fk_sensor = s.id_sensor
+JOIN empresa e
+    ON s.fk_empresa = e.id_empresa
 WHERE c.status_caixa = 'Transporte'
 ORDER BY c.dt_cadastro DESC;
 
