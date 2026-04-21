@@ -49,7 +49,11 @@ CREATE TABLE lote(
     dt_fabricacao DATE NOT NULL,
     dt_validade DATE NOT NULL,
     qtd_caixas INT NOT NULL,
-    codigo_identificador VARCHAR(45) NOT NULL UNIQUE
+    codigo_identificador VARCHAR(45) NOT NULL UNIQUE,
+    fk_empresa INT,
+    CONSTRAINT cfk_empresa
+		FOREIGN KEY (fk_empresa)
+        REFERENCES empresa(id_empresa)
 );
 
 CREATE TABLE caixa(
@@ -117,14 +121,14 @@ VALUES
 ('SEN006', 'CoolTrack Z2', 'Inativo', '2026-04-10', '2026-04-19', 3);
 
 INSERT INTO lote
-(dt_fabricacao, dt_validade, qtd_caixas, codigo_identificador)
+(dt_fabricacao, dt_validade, qtd_caixas, codigo_identificador,fk_empresa)
 VALUES
-('2026-04-01', '2026-05-01', 120, 'LOTEDAN001'),
-('2026-04-05', '2026-05-05', 90, 'LOTEDAN002'),
-('2026-04-02', '2026-05-02', 150, 'LOTEYOP001'),
-('2026-04-06', '2026-05-06', 110, 'LOTEYOP002'),
-('2026-04-03', '2026-05-03', 130, 'LOTEDTT001'),
-('2026-04-07', '2026-05-07', 100, 'LOTEDTT002');
+('2026-04-01', '2026-05-01', 120, 'LOTEDAN001',1),
+('2026-04-05', '2026-05-05', 90, 'LOTEDAN002',1),
+('2026-04-02', '2026-05-02', 150, 'LOTEYOP001',2),
+('2026-04-06', '2026-05-06', 110, 'LOTEYOP002',2),
+('2026-04-03', '2026-05-03', 130, 'LOTEDTT001',3),
+('2026-04-07', '2026-05-07', 100, 'LOTEDTT002',3);
 
 INSERT INTO caixa
 (codigo_caixa, status_caixa, dt_cadastro, temp_min, temp_max, fk_sensor, fk_lote)
