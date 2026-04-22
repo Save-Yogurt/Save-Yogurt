@@ -61,8 +61,8 @@ CREATE TABLE caixa(
     codigo_caixa VARCHAR(45) NOT NULL UNIQUE,
     status_caixa VARCHAR(45) NOT NULL,
     dt_cadastro DATETIME NOT NULL,
-    temp_min DECIMAL(4,2) NOT NULL, 
-    temp_max DECIMAL(4,2) NOT NULL,
+    temp_min DECIMAL(5,2) NOT NULL, 
+    temp_max DECIMAL(5,2) NOT NULL,
     fk_sensor INT NOT NULL,
     fk_lote INT NOT NULL,
     CONSTRAINT ch_status_caixa
@@ -78,16 +78,10 @@ CREATE TABLE caixa(
 -- 1 = acima ou abaixo da temperatura ideal | 0 = dentro da temperatura ideal
 CREATE TABLE registro(
     id_registro INT AUTO_INCREMENT,
-    dt_registro DATETIME NOT NULL,
-    temperatura DECIMAL(4,2) NOT NULL,
-    alerta TINYINT NOT NULL,
-    situacao VARCHAR(45) NOT NULL,
+    dt_registro DATETIME DEFAULT NOW() NOT NULL,
+    temperatura DECIMAL(5,2) NOT NULL,
     fk_sensor INT NOT NULL,
     PRIMARY KEY (id_registro, fk_sensor),
-    CONSTRAINT ch_alerta
-        CHECK(alerta IN (0,1)),
-    CONSTRAINT ch_situacao
-        CHECK(situacao IN ('Ideal','Acima','Abaixo')),
     CONSTRAINT fk_registro_sensor
         FOREIGN KEY (fk_sensor)
         REFERENCES sensor(id_sensor)
@@ -141,17 +135,17 @@ VALUES
 ('CX006', 'Descartada', '2026-04-10 11:00:00', 2.00, 5.00, 6, 6);
 
 INSERT INTO registro
-(dt_registro, temperatura, alerta, situacao, fk_sensor)
+(dt_registro, temperatura, fk_sensor)
 VALUES
-('2026-04-10 08:10:00', 4.20, 0, 'Ideal', 1),
-('2026-04-10 09:10:00', 5.60, 1, 'Acima', 1),
-('2026-04-10 10:10:00', 3.80, 0, 'Ideal', 2),
-('2026-04-10 08:40:00', 2.50, 0, 'Ideal', 3),
-('2026-04-10 09:40:00', 1.80, 1, 'Abaixo', 3),
-('2026-04-10 10:40:00', 4.70, 0, 'Ideal', 4),
-('2026-04-10 08:50:00', 3.90, 0, 'Ideal', 5),
-('2026-04-10 09:50:00', 5.30, 1, 'Acima', 5),
-('2026-04-10 10:50:00', 2.20, 0, 'Ideal', 6);
+('2026-04-10 08:10:00', 4.20, 1),
+('2026-04-10 09:10:00', 5.60, 1),
+('2026-04-10 10:10:00', 3.80, 2),
+('2026-04-10 08:40:00', 2.50, 3),
+('2026-04-10 09:40:00', 1.80, 3),
+('2026-04-10 10:40:00', 4.70, 4),
+('2026-04-10 08:50:00', 3.90, 5),
+('2026-04-10 09:50:00', 5.30, 5),
+('2026-04-10 10:50:00', 2.20, 6);
 
 SELECT * FROM empresa;
 SELECT * FROM usuario;
@@ -184,12 +178,13 @@ SELECT
     s.codigo_sensor,
     r.dt_registro,
     r.temperatura,
-    r.situacao,
     CASE
-        WHEN r.alerta = 1 THEN 'Sim'
-        ELSE 'Não'
-    END AS alerta
-FROM registro r
+        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Ideal'
+        WHEN r.temperatura <2 AND r.temperatura >=0 OR
+        r.temperatura >5 AND r.temperatura <=10 THEN 'Amarelo'
+        WHEN r.temperatura >10 OR r.temperatura <0 THEN 'Vermelho'
+	END AS 'Situação'
+    FROM  registro r
 JOIN sensor s
     ON r.fk_sensor = s.id_sensor
 JOIN caixa c
@@ -200,20 +195,26 @@ JOIN empresa e
     ON s.fk_empresa = e.id_empresa
 ORDER BY r.dt_registro;
 
-
--- Analise de caixas com presença de alerta
+-- Temperatura e situação por sensor 
 SELECT
-    e.razao_social AS Empresa,
-    c.codigo_caixa AS Caixa,
-    s.codigo_sensor AS Sensor,
-    r.dt_registro AS Data_Hora,
-    r.temperatura AS Temperatura,
-    r.situacao AS Situacao,
+    e.razao_social AS empresa,
+    l.codigo_identificador AS lote,
+    c.codigo_caixa,
+    s.codigo_sensor,
+    r.dt_registro,
+    r.temperatura,
     CASE
-        WHEN r.alerta = 1 THEN 'Sim'
-        ELSE 'Não'
-    END AS Alerta
-FROM registro r
+        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Ideal'
+        WHEN r.temperatura <2 AND r.temperatura >=0 OR
+        r.temperatura >5 AND r.temperatura <=10 THEN 'Amarelo'
+        WHEN r.temperatura >10 OR r.temperatura <0 THEN 'Vermelho'
+	END AS 'Situação',
+    CASE 
+		WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Dentro do Ideal'
+        WHEN r.temperatura < 2 THEN 'Abaixo do ideal'
+        WHEN r.temperatura > 5 THEN 'Acima do ideal'
+	END AS 'Parâmetro'
+    FROM  registro r
 JOIN sensor s
     ON r.fk_sensor = s.id_sensor
 JOIN caixa c
@@ -222,8 +223,8 @@ JOIN lote l
     ON c.fk_lote = l.id_lote
 JOIN empresa e
     ON s.fk_empresa = e.id_empresa
-WHERE r.alerta = 1
-ORDER BY r.dt_registro DESC;
+ORDER BY r.dt_registro;
+
 
 -- Sensores e seus Status
 SELECT
