@@ -179,7 +179,7 @@ SELECT
     r.dt_registro,
     r.temperatura,
     CASE
-        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Ideal'
+        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Verde'
         WHEN r.temperatura <2 AND r.temperatura >=0 OR
         r.temperatura >5 AND r.temperatura <=10 THEN 'Amarelo'
         WHEN r.temperatura >10 OR r.temperatura <0 THEN 'Vermelho'
@@ -204,13 +204,13 @@ SELECT
     r.dt_registro,
     r.temperatura,
     CASE
-        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Ideal'
+        WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Verde'
         WHEN r.temperatura <2 AND r.temperatura >=0 OR
         r.temperatura >5 AND r.temperatura <=10 THEN 'Amarelo'
         WHEN r.temperatura >10 OR r.temperatura <0 THEN 'Vermelho'
 	END AS 'Situação',
     CASE 
-		WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Dentro do Ideal'
+		WHEN r.temperatura >=2 AND r.temperatura <= 5 THEN 'Ideal'
         WHEN r.temperatura < 2 THEN 'Abaixo do ideal'
         WHEN r.temperatura > 5 THEN 'Acima do ideal'
 	END AS 'Parâmetro'
