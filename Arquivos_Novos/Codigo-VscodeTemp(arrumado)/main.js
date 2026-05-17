@@ -21,9 +21,9 @@ const serial = async (
         {
             host: 'localhost',
             user: 'UserInsert',
-            password: 'urubu100@',
-            database: 'save_yougurt',
-            port: 3306
+            password: 'Urubu100@',
+            database: 'save_yogurt',
+            port: 3307
         }
     ).promise();
 
@@ -51,25 +51,44 @@ const serial = async (
     arduino.pipe(new serialport.ReadlineParser({ delimiter: '\r\n' })).on('data', async (data) => {
         console.log(data);
         const valores = data.split(';');
-        const SensorTemp = parseFloat(valores[0]);
-        //const sensorAnalogico = parseFloat(valores[1]);
+        const SensorTemp = (parseFloat(valores[0]));
 
         // armazena os valores dos sensores nos arrays correspondentes
-        //valoresSensorAnalogico.push(sensorAnalogico);
+    
         valoresSensorTemp.push(SensorTemp);
 
         // insere os dados no banco de dados (se habilitado)
         if (HABILITAR_OPERACAO_INSERIR) {
 
-            // este insert irá inserir os dados na tabela "medida"
+            // ideal 2-5
             await poolBancoDados.execute(
-                'INSERT INTO medidas (temperatura, fk_id_sensor) VALUES (?, 1)',
-                [SensorTemp]
-            );
-            console.log("valores inseridos no banco: " + SensorTemp);
+                'INSERT INTO registro (temperatura, fk_sensor ) VALUES (?, 1)',
+                [SensorTemp - 23]
+            )
+
+            // ALERTA acima
+            await poolBancoDados.execute(
+                'INSERT INTO registro (temperatura, fk_sensor ) VALUES (?, 2)',
+                [SensorTemp - 18]
+            )
+             // CRITICO acima
+            await poolBancoDados.execute(
+                'INSERT INTO registro (temperatura, fk_sensor) VALUES (?, 3)',
+                [SensorTemp - 20]
+            )
+            //alerta abaixo
+            await poolBancoDados.execute(
+                'INSERT INTO registro (temperatura, fk_sensor ) VALUES (?, 4)',
+                [SensorTemp - 26]
+            )
+            //critico abaixo
+            await poolBancoDados.execute(
+                'INSERT INTO registro (temperatura, fk_sensor ) VALUES (?, 5)',
+                [SensorTemp - 28]
+            )
 
         }
-
+    
     });
 
     // evento para lidar com erros na comunicação serial
@@ -80,7 +99,7 @@ const serial = async (
 
 // função para criar e configurar o servidor web
 const servidor = (
-    //valoresSensorAnalogico,
+
     valoresSensorTemp
 ) => {
     const app = express();
